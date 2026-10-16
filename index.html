@@ -81,6 +81,7 @@ button:focus-visible, .chip:focus-visible, input:focus-visible { outline: 2px so
   display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10;
 }
 .overlay[hidden] { display: none; }
+.overlay { overflow-y: auto; }
 .panel {
   background: var(--surface); color: var(--fg); border-radius: 12px; padding: 24px;
   width: 100%; max-width: 420px; box-sizing: border-box; border: 1px solid var(--line);
@@ -98,6 +99,17 @@ button.ghost {
   padding: 9px 14px; font: inherit; cursor: pointer;
 }
 .field-err { color: var(--danger); font-size: 13px; min-height: 1.2em; margin-top: 6px; }
+.pix-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 20px 0 0; color: var(--muted); }
+a.primary { display: inline-block; text-decoration: none; background: var(--accent); color: var(--accent-ink); border-radius: 8px; padding: 9px 14px; font-weight: 600; }
+a.primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pix img { display: block; width: 100%; max-width: 240px; height: auto; margin: 0 auto; border-radius: 8px; background: #fff; }
+.pix .pix-name { text-align: center; color: var(--fg); font-weight: 600; margin: 12px 0 8px; }
+.pix textarea {
+  width: 100%; box-sizing: border-box; resize: none; font: 12px/1.4 ui-monospace, monospace; padding: 8px 10px;
+  border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); overflow-wrap: anywhere;
+}
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ok { color: var(--accent); font-size: 13px; min-height: 1.2em; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -105,6 +117,7 @@ button.ghost {
   <img class="banner" src="marca-dagua.jpg" width="1022" height="430" alt="Ana Luisa e Pedro Henrique">
   <h1>Lista de Presentes de Casamento</h1>
   <p class="lede">Escolha um item disponível. Assim que alguém confirmar um presente, ele deixa a lista para evitar presentes duplicados.</p>
+  <p class="pix-cta"><a class="primary" href="#pix">Presentear com Pix</a> <span>Prefere contribuir com qualquer valor?</span></p>
 
   <div class="bar">
     <input id="q" type="search" placeholder="Buscar item" aria-label="Buscar item">
@@ -136,6 +149,22 @@ button.ghost {
       <button type="submit" class="primary" id="submit">Confirmar</button>
     </div>
   </form>
+</div>
+
+<div class="overlay" id="pixOverlay" hidden>
+  <div class="panel pix" role="dialog" aria-modal="true" aria-labelledby="pixTitle">
+    <h3 id="pixTitle">Presente em Pix</h3>
+    <p>Valor livre. Abra o app do seu banco e leia o QR Code, ou copie o código e use a opção Pix Copia e Cola.</p>
+    <img src="pix-qr.png" width="540" height="540" alt="QR Code Pix">
+    <p class="pix-name">Pedro Henrique Costa da Conceição</p>
+    <label for="pixCode" class="sr-only">Código Pix Copia e Cola</label>
+    <textarea id="pixCode" rows="5" readonly></textarea>
+    <p class="ok" id="pixMsg" role="status"></p>
+    <div class="actions">
+      <button type="button" class="ghost" id="pixClose">Fechar</button>
+      <button type="button" class="primary" id="pixCopy">Copiar código Pix</button>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -295,7 +324,35 @@ $('q').addEventListener('input', e => { state.query = e.target.value; render(); 
 $('cancel').addEventListener('click', closeForm);
 $('overlay').addEventListener('click', e => { if (e.target === $('overlay')) closeForm(); });
 $('form').addEventListener('submit', onSubmit);
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('overlay').hidden) closeForm(); });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (!$('overlay').hidden) closeForm();
+  if (!$('pixOverlay').hidden) closePix();
+});
+
+// Pix: o modal abre pelo link ...#pix, que pode ser compartilhado diretamente.
+const PIX_CODE = '00020126330014BR.GOV.BCB.PIX0111113931471865204000053039865802BR5925PEDRO HENRIQUE COSTA DA C6009SAO PAULO622605221P9RwXD12rsrCwizluX6M46304B225';
+$('pixCode').value = PIX_CODE;
+function openPix() { $('pixMsg').textContent = ''; $('pixOverlay').hidden = false; $('pixCopy').focus(); }
+function closePix() {
+  $('pixOverlay').hidden = true;
+  if (location.hash === '#pix') history.replaceState(null, '', location.pathname + location.search);
+}
+function syncPix() { if (location.hash === '#pix') openPix(); }
+async function copyPix() {
+  try {
+    await navigator.clipboard.writeText(PIX_CODE);
+  } catch (err) {
+    $('pixCode').select();
+    document.execCommand('copy');
+  }
+  $('pixMsg').textContent = 'Código copiado. Cole no app do seu banco, na opção Pix Copia e Cola.';
+}
+$('pixCopy').addEventListener('click', copyPix);
+$('pixClose').addEventListener('click', closePix);
+$('pixOverlay').addEventListener('click', e => { if (e.target === $('pixOverlay')) closePix(); });
+window.addEventListener('hashchange', syncPix);
+syncPix();
 
 render();
 load();
