@@ -7,21 +7,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap">
 <style>
 :root {
-  /* Paleta extraída da imagem do cabeçalho: azul dos nomes, dourado dos detalhes, fundo marfim. */
-  --bg: #FAF9F6; --surface: #FFFFFF; --fg: #1F3346; --muted: #586776;
-  --line: #E6DDCC; --accent: #2F5A80; --accent-ink: #FFFFFF; --gold: #9C7C4A; --danger: #8A3B2E;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #141B22; --surface: #1C2630; --fg: #E9EEF3; --muted: #9DABB8;
-    --line: #34404C; --accent: #9DBBD8; --accent-ink: #141B22; --gold: #C6AD7E; --danger: #E0A093;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #141B22; --surface: #1C2630; --fg: #E9EEF3; --muted: #9DABB8;
-  --line: #34404C; --accent: #9DBBD8; --accent-ink: #141B22; --gold: #C6AD7E; --danger: #E0A093;
+  /* Paleta da imagem do cabeçalho: texto marfim sobre o azul-marinho dos nomes, dourado nos detalhes.
+     Fundo sempre escuro (também no tema claro do aparelho), para o texto marfim permanecer legível. */
+  --bg: #1F3346; --surface: #283F55; --fg: #FAF6EC; --muted: #DCD4C4;
+  --line: #3E566D; --accent: #C6AD7E; --accent-ink: #1F3346; --gold: #C6AD7E; --danger: #F2B8A8;
   color-scheme: dark;
 }
 body {
@@ -30,23 +19,19 @@ body {
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-/* Marca d'água: imagem fixa ao fundo; multiply apaga o fundo claro da imagem. */
+/* Marca d'água: imagem invertida e clareada sobre o fundo escuro; screen apaga o fundo da imagem. */
 body::before {
   content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background: url("marca-dagua.jpg") 50% 72% / min(900px, 94vw) auto no-repeat;
-  opacity: .16; mix-blend-mode: multiply;
+  filter: invert(1) hue-rotate(180deg) brightness(.8) contrast(1.4); mix-blend-mode: screen; opacity: .2;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) body::before { filter: invert(1) hue-rotate(180deg) brightness(.8) contrast(1.4); mix-blend-mode: screen; opacity: .22; }
-}
-:root[data-theme="dark"] body::before { filter: invert(1) hue-rotate(180deg) brightness(.8) contrast(1.4); mix-blend-mode: screen; opacity: .22; }
 main { position: relative; z-index: 1; }
 .banner { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto 24px; border-radius: 12px; }
 main { max-width: 760px; margin: 0 auto; padding-block: 32px 64px; }
 h1, h2, h3 { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; text-wrap: balance; margin: 0; }
-h1 { font-family: "Great Vibes", "Cormorant Garamond", cursive; font-weight: 400; font-size: clamp(44px, 9vw, 68px); line-height: 1.1; color: var(--accent); text-align: center; }
+h1 { font-family: "Great Vibes", "Cormorant Garamond", cursive; font-weight: 400; font-size: clamp(44px, 9vw, 68px); line-height: 1.1; color: var(--fg); text-align: center; }
 h1::after { content: ""; display: block; width: 120px; height: 1px; margin: 10px auto 0; background: var(--gold); }
-h2 { font-size: 28px; font-style: italic; color: var(--accent); margin-block: 36px 12px; display: flex; align-items: baseline; gap: 12px; }
+h2 { font-size: 28px; font-style: italic; color: var(--fg); margin-block: 36px 12px; display: flex; align-items: baseline; gap: 12px; }
 h2 span.count { font-style: normal; font-size: 15px; color: var(--muted); font-weight: 500; }
 .lede { color: var(--muted); max-width: 56ch; margin: 14px auto 0; text-align: center; font-style: italic; font-size: 19px; }
 .bar {
@@ -90,7 +75,7 @@ button:focus-visible, .chip:focus-visible, input:focus-visible { outline: 2px so
 }
 .panel h3 { font-size: 24px; margin: 0 0 4px; }
 .panel p { color: var(--muted); margin: 0 0 16px; }
-.panel label { display: block; font-size: 13px; font-weight: 500; margin-top: 12px; }
+.panel label { display: block; font-size: 16px; font-weight: 600; margin-top: 12px; }
 .panel input {
   display: block; width: 100%; box-sizing: border-box; margin-top: 4px; padding: 10px 12px;
   border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); font: inherit;
