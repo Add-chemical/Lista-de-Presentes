@@ -139,7 +139,7 @@ const sb = (window.SUPABASE_URL && window.SUPABASE_ANON_KEY && window.supabase)
   : null;
 
 async function load() {
-  if (!sb) { state.failed = true; render(); return; }
+  if (!sb) { state.pending = true; render(); return; }
   const { data, error } = await sb.from('gifts').select('id,name,section,status').eq('status', 'available');
   if (error) { state.failed = true; setStatus('Não foi possível atualizar a lista agora.', true); }
   else { state.failed = false; state.items = data || []; }
@@ -166,6 +166,10 @@ function render() {
   const list = $('list');
   list.replaceChildren();
 
+  if (state.pending) {
+    list.appendChild(emptyP('A lista de presentes será disponibilizada em breve.'));
+    return;
+  }
   if (state.failed) {
     list.appendChild(emptyP('Não foi possível carregar a lista agora. Tente novamente mais tarde.'));
     return;
