@@ -7,10 +7,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap">
 <style>
 :root {
-  /* Paleta da imagem do cabeçalho: fundo marfim (#F6EFDF), texto no azul-marinho dos nomes, botões dourados. */
-  --bg: #F6EFDF; --surface: #FFFBF3; --fg: #1F3346; --muted: #586776;
-  --line: #E6DDCC; --accent: #C6AD7E; --accent-ink: #1F3346; --gold: #9C7C4A; --danger: #8A3B2E;
-  color-scheme: light;
+  /* Paleta da imagem do cabeçalho: fundo no azul-marinho dos nomes, texto marfim, botões dourados. */
+  --bg: #1F3346; --surface: #283F55; --fg: #FAF6EC; --muted: #DCD4C4;
+  --line: #3E566D; --accent: #C6AD7E; --accent-ink: #1F3346; --gold: #C6AD7E; --danger: #F2B8A8;
+  color-scheme: dark;
 }
 body {
   margin: 0; background: var(--bg); color: var(--fg);
@@ -18,11 +18,11 @@ body {
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-/* Marca d'água: imagem fixa ao fundo; multiply apaga o fundo claro da imagem. */
+/* Marca d'água: imagem invertida e clareada sobre o fundo escuro; screen apaga o fundo da imagem. */
 body::before {
   content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background: url("marca-dagua.jpg") 50% 72% / min(900px, 94vw) auto no-repeat;
-  opacity: .16; mix-blend-mode: multiply;
+  filter: invert(1) hue-rotate(180deg) brightness(.8) contrast(1.4); mix-blend-mode: screen; opacity: .2;
 }
 main { position: relative; z-index: 1; }
 .banner { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto 24px; border-radius: 12px; }
@@ -121,7 +121,7 @@ a.primary:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 </head>
 <body>
 <main>
-  <img class="banner" src="cabecalho.jpg" width="1022" height="430" alt="Ana Luisa e Pedro Henrique">
+  <img class="banner" src="marca-dagua.jpg" width="1022" height="430" alt="Ana Luisa e Pedro Henrique">
   <h1>Lista de Presentes de Casamento</h1>
   <p class="event-date"><span class="label">Data do Evento</span><time datetime="2026-12-05">05/12/2026</time><span class="weekday">sábado, 5 de dezembro de 2026</span></p>
   <p class="lede">Escolha um item disponível. Assim que alguém confirmar um presente, ele deixa a lista para evitar presentes duplicados.</p>
