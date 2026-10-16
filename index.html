@@ -7,11 +7,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap">
 <style>
 :root {
-  /* Paleta da imagem do cabeçalho: texto marfim sobre o azul-marinho dos nomes, dourado nos detalhes.
-     Fundo sempre escuro (também no tema claro do aparelho), para o texto marfim permanecer legível. */
-  --bg: #1F3346; --surface: #283F55; --fg: #FAF6EC; --muted: #DCD4C4;
-  --line: #3E566D; --accent: #C6AD7E; --accent-ink: #1F3346; --gold: #C6AD7E; --danger: #F2B8A8;
-  color-scheme: dark;
+  /* Paleta da imagem do cabeçalho: fundo marfim, texto no azul-marinho dos nomes, botões dourados. */
+  --bg: #FAF9F6; --surface: #FFFFFF; --fg: #1F3346; --muted: #586776;
+  --line: #E6DDCC; --accent: #C6AD7E; --accent-ink: #1F3346; --gold: #9C7C4A; --danger: #8A3B2E;
+  color-scheme: light;
 }
 body {
   margin: 0; background: var(--bg); color: var(--fg);
@@ -19,11 +18,11 @@ body {
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-/* Marca d'água: imagem invertida e clareada sobre o fundo escuro; screen apaga o fundo da imagem. */
+/* Marca d'água: imagem fixa ao fundo; multiply apaga o fundo claro da imagem. */
 body::before {
   content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background: url("marca-dagua.jpg") 50% 72% / min(900px, 94vw) auto no-repeat;
-  filter: invert(1) hue-rotate(180deg) brightness(.8) contrast(1.4); mix-blend-mode: screen; opacity: .2;
+  opacity: .16; mix-blend-mode: multiply;
 }
 main { position: relative; z-index: 1; }
 .banner { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto 24px; border-radius: 12px; }
@@ -59,7 +58,7 @@ button.primary {
   padding: 9px 14px; font: inherit; font-weight: 600; cursor: pointer; flex-shrink: 0;
 }
 button:disabled { opacity: .6; cursor: default; }
-button:focus-visible, .chip:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button:focus-visible, .chip:focus-visible, input:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 .empty { color: var(--muted); padding: 24px 0; }
 .status { min-height: 1.5em; color: var(--muted); margin-top: 16px; }
 .status.err { color: var(--danger); }
@@ -88,7 +87,7 @@ button.ghost {
 .field-err { color: var(--danger); font-size: 13px; min-height: 1.2em; margin-top: 6px; }
 .pix-cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 14px; margin: 20px 0 0; color: var(--muted); }
 a.primary { display: inline-block; text-decoration: none; background: var(--accent); color: var(--accent-ink); border-radius: 8px; padding: 9px 14px; font-weight: 600; }
-a.primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+a.primary:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 .pix img { display: block; width: 100%; max-width: 240px; height: auto; margin: 0 auto; border-radius: 8px; background: #fff; }
 .pix .pix-name { text-align: center; color: var(--fg); font-weight: 600; margin: 12px 0 8px; }
 .pix textarea {
@@ -96,7 +95,7 @@ a.primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px;
   border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); overflow-wrap: anywhere;
 }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.ok { color: var(--accent); font-size: 13px; min-height: 1.2em; margin-top: 6px; }
+.ok { color: var(--fg); font-size: 15px; min-height: 1.2em; margin-top: 6px; }
 </style>
 </head>
 <body>
