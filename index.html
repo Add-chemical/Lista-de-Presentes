@@ -96,14 +96,36 @@ a.primary:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .ok { color: var(--fg); font-size: 15px; min-height: 1.2em; margin-top: 6px; }
+.event-date {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; margin: 18px auto 0;
+  padding: 10px 22px; width: fit-content; border: 1px solid var(--gold); border-radius: 10px; background: var(--surface);
+}
+.event-date .label { font-size: 14px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.event-date time { font-size: 30px; font-weight: 600; color: var(--fg); line-height: 1.1; }
+.event-date .weekday { font-style: italic; color: var(--muted); }
+.panel.rsvp { max-width: 500px; }
+.rsvp fieldset { border: 0; padding: 0; margin: 14px 0 0; }
+.rsvp legend { font-weight: 600; padding: 0; }
+.rsvp .choice { display: flex; gap: 18px; margin-top: 6px; }
+.rsvp .choice label, .rsvp .member label { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-weight: 500; }
+.panel input[type="radio"], .panel input[type="checkbox"] { display: inline-block; width: auto; margin: 0; accent-color: var(--fg); }
+.rsvp .member { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; margin-top: 8px; }
+.rsvp .member input[type="text"] { margin: 0; }
+.rsvp .remove { background: none; border: 0; color: var(--danger); font: inherit; font-size: 22px; line-height: 1; cursor: pointer; padding: 4px 6px; }
+.rsvp textarea {
+  display: block; width: 100%; box-sizing: border-box; margin-top: 4px; padding: 10px 12px; resize: vertical;
+  border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); font: inherit;
+}
+.rsvp .hint { font-size: 15px; color: var(--muted); margin: 4px 0 0; }
 </style>
 </head>
 <body>
 <main>
   <img class="banner" src="marca-dagua.jpg" width="1022" height="430" alt="Ana Luisa e Pedro Henrique">
   <h1>Lista de Presentes de Casamento</h1>
+  <p class="event-date"><span class="label">Data do Evento</span><time datetime="2026-12-05">05/12/2026</time><span class="weekday">sábado, 5 de dezembro de 2026</span></p>
   <p class="lede">Escolha um item disponível. Assim que alguém confirmar um presente, ele deixa a lista para evitar presentes duplicados.</p>
-  <p class="pix-cta"><a class="primary" href="#pix">Presentear com Pix</a> <span>Prefere contribuir com qualquer valor?</span></p>
+  <p class="pix-cta"><a class="primary" href="#pix">Presentear com Pix</a><a class="primary" href="#presenca">Confirmar presença</a></p>
 
   <div class="bar">
     <input id="q" type="search" placeholder="Buscar item" aria-label="Buscar item">
@@ -133,6 +155,47 @@ a.primary:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
     <div class="actions">
       <button type="button" class="ghost" id="cancel">Cancelar</button>
       <button type="submit" class="primary" id="submit">Confirmar</button>
+    </div>
+  </form>
+</div>
+
+<div class="overlay" id="rsvpOverlay" hidden>
+  <form class="panel rsvp" id="rsvpForm" role="dialog" aria-modal="true" aria-labelledby="rsvpTitle" novalidate>
+    <h3 id="rsvpTitle">Confirmação de presença</h3>
+    <p>Casamento em <strong>05/12/2026</strong> (sábado). Preencha uma confirmação por família.</p>
+    <label>Família (sobrenome)
+      <input id="rFamily" autocomplete="family-name" placeholder="Ex.: Família Silva" required>
+    </label>
+    <label>Seu nome (responsável)
+      <input id="rContact" autocomplete="name" required>
+    </label>
+    <label>WhatsApp
+      <input id="rWhats" type="tel" autocomplete="tel" placeholder="(00) 00000-0000" required>
+    </label>
+    <label>E-mail (opcional)
+      <input id="rEmail" type="email" autocomplete="email">
+    </label>
+    <fieldset>
+      <legend>Vocês irão ao casamento?</legend>
+      <div class="choice">
+        <label><input type="radio" name="rAttend" value="yes"> Sim, estaremos lá</label>
+        <label><input type="radio" name="rAttend" value="no"> Não poderemos ir</label>
+      </div>
+    </fieldset>
+    <fieldset id="rMembersBox">
+      <legend>Convidados da família</legend>
+      <p class="hint">Inclua todas as pessoas que irão, inclusive você. Marque “Criança” para menores de 12 anos.</p>
+      <div id="rMembers"></div>
+      <button type="button" class="ghost" id="rAdd" style="margin-top:10px">+ Adicionar pessoa</button>
+    </fieldset>
+    <label>Mensagem aos noivos (opcional)
+      <textarea id="rMessage" rows="3" maxlength="1000"></textarea>
+    </label>
+    <div class="field-err" id="rErr" role="alert"></div>
+    <p class="ok" id="rOk" role="status"></p>
+    <div class="actions">
+      <button type="button" class="ghost" id="rClose">Fechar</button>
+      <button type="submit" class="primary" id="rSubmit">Enviar confirmação</button>
     </div>
   </form>
 </div>
@@ -314,6 +377,7 @@ document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (!$('overlay').hidden) closeForm();
   if (!$('pixOverlay').hidden) closePix();
+  if (!$('rsvpOverlay').hidden) closeRsvp();
 });
 
 // Pix: o modal abre pelo link ...#pix, que pode ser compartilhado diretamente.
@@ -339,6 +403,88 @@ $('pixClose').addEventListener('click', closePix);
 $('pixOverlay').addEventListener('click', e => { if (e.target === $('pixOverlay')) closePix(); });
 window.addEventListener('hashchange', syncPix);
 syncPix();
+
+// Confirmação de presença: abre pelo link ...#presenca. Envio via submit_rsvp (supabase/rsvp.sql).
+const MAX_MEMBERS = 20;
+function addMember(name) {
+  const box = $('rMembers');
+  if (box.children.length >= MAX_MEMBERS) return;
+  const row = document.createElement('div');
+  row.className = 'member';
+  const n = box.children.length + 1;
+  const input = document.createElement('input');
+  input.type = 'text'; input.value = name || ''; input.placeholder = 'Nome completo';
+  input.setAttribute('aria-label', 'Nome do convidado ' + n);
+  const kidLabel = document.createElement('label');
+  const kid = document.createElement('input');
+  kid.type = 'checkbox';
+  kidLabel.append(kid, ' Criança');
+  const rm = document.createElement('button');
+  rm.type = 'button'; rm.className = 'remove'; rm.textContent = '×';
+  rm.setAttribute('aria-label', 'Remover convidado ' + n);
+  rm.addEventListener('click', () => { row.remove(); if (!box.children.length) addMember(); });
+  row.append(input, kidLabel, rm);
+  box.appendChild(row);
+  $('rAdd').disabled = box.children.length >= MAX_MEMBERS;
+  return input;
+}
+function attendValue() { const r = document.querySelector('input[name="rAttend"]:checked'); return r ? r.value : ''; }
+function syncAttend() { $('rMembersBox').hidden = attendValue() === 'no'; }
+function openRsvp() {
+  $('rsvpForm').reset();
+  $('rMembers').replaceChildren(); addMember();
+  $('rErr').textContent = ''; $('rOk').textContent = '';
+  $('rSubmit').disabled = false; $('rSubmit').hidden = false; syncAttend();
+  $('rsvpOverlay').hidden = false; $('rFamily').focus();
+}
+function closeRsvp() {
+  $('rsvpOverlay').hidden = true;
+  if (location.hash === '#presenca') history.replaceState(null, '', location.pathname + location.search);
+}
+function syncRsvp() { if (location.hash === '#presenca') openRsvp(); }
+async function onRsvp(e) {
+  e.preventDefault();
+  const family = $('rFamily').value.trim(), contact = $('rContact').value.trim();
+  const whats = $('rWhats').value.trim(), email = $('rEmail').value.trim();
+  const attend = attendValue();
+  const members = [...$('rMembers').children]
+    .map(r => ({ name: r.querySelector('input[type="text"]').value.trim(), child: r.querySelector('input[type="checkbox"]').checked }))
+    .filter(m => m.name);
+  let err = '';
+  if (!family) err = 'Informe o sobrenome da família.';
+  else if (!contact) err = 'Informe seu nome.';
+  else if (whats.replace(/\D/g, '').length < 10) err = 'Informe um WhatsApp com DDD.';
+  else if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) err = 'Informe um e-mail válido ou deixe em branco.';
+  else if (!attend) err = 'Informe se vocês irão ao casamento.';
+  else if (attend === 'yes' && !members.length) err = 'Informe o nome de ao menos uma pessoa que irá.';
+  $('rErr').textContent = err;
+  if (err) return;
+  if (!sb) { $('rErr').textContent = 'A confirmação ainda não está disponível. Tente novamente mais tarde.'; return; }
+  $('rSubmit').disabled = true;
+  try {
+    const { error } = await sb.rpc('submit_rsvp', {
+      r_family: family, r_contact: contact, r_whats: whats, r_email: email,
+      r_attending: attend === 'yes', r_members: attend === 'yes' ? members : [], r_message: $('rMessage').value.trim()
+    });
+    if (error) throw error;
+    const kids = members.filter(m => m.child).length;
+    $('rOk').textContent = attend === 'yes'
+      ? 'Presença confirmada: ' + members.length + (members.length === 1 ? ' pessoa' : ' pessoas') + (kids ? ' (' + kids + (kids === 1 ? ' criança' : ' crianças') + ')' : '') + '. Até 05/12/2026!'
+      : 'Obrigado por avisar. Sentiremos sua falta!';
+    $('rSubmit').hidden = true;
+  } catch (ex) {
+    $('rSubmit').disabled = false;
+    $('rErr').textContent = 'Não foi possível enviar a confirmação. Tente novamente.';
+  }
+}
+document.querySelectorAll('input[name="rAttend"]').forEach(r => r.addEventListener('change', syncAttend));
+$('rAdd').addEventListener('click', () => addMember().focus());
+$('rClose').addEventListener('click', closeRsvp);
+$('rsvpOverlay').addEventListener('click', e => { if (e.target === $('rsvpOverlay')) closeRsvp(); });
+$('rsvpForm').addEventListener('submit', onRsvp);
+$('rsvpForm').addEventListener('input', () => { $('rErr').textContent = ''; });
+window.addEventListener('hashchange', syncRsvp);
+syncRsvp();
 
 render();
 load();

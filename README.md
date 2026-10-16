@@ -47,3 +47,30 @@ Para devolver um item à lista:
 delete from public.gift_claims where gift_id = <id>;
 update public.gifts set status = 'available' where id = <id>;
 ```
+
+## Confirmação de presença
+
+Botão **Confirmar presença** no topo da página (link direto: `.../Lista-de-Presentes/#presenca`).
+Cada família informa sobrenome, responsável, WhatsApp, e-mail (opcional), se irá, os nomes dos
+convidados (marcando crianças) e uma mensagem opcional.
+
+1. No SQL Editor do Supabase, executar `supabase/rsvp.sql` (pode ser executado mais de uma vez).
+2. Consultar as confirmações (os dados não ficam visíveis na página):
+
+```sql
+-- Resumo
+select attending, count(*) familias, sum(adults) adultos, sum(children) criancas
+  from public.rsvps group by attending;
+
+-- Por família
+select created_at, family_name, contact_name, whatsapp, email, attending, adults, children, message
+  from public.rsvps order by created_at;
+
+-- Lista nominal de quem vai
+select r.family_name, x->>'name' as convidado, (x->>'child')::boolean as crianca
+  from public.rsvps r, jsonb_array_elements(r.members) x
+ where r.attending order by 1, 2;
+```
+
+Se uma família enviar mais de uma vez, as duas confirmações ficam gravadas; apagar a duplicada com
+`delete from public.rsvps where id = <id>;`.
