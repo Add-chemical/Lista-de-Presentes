@@ -127,6 +127,7 @@ button.ghost {
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
+<script src="itens.js"></script>
 <script>
 const SECTION_ORDER = ['Eletroportáteis e Outros', 'Quarto', 'Banheiro', 'Eletrodoméstico', 'Cozinha', 'Lavanderia', 'Mesa e Jantar'];
 const POLL_MS = 20000;
@@ -139,7 +140,14 @@ const sb = (window.SUPABASE_URL && window.SUPABASE_ANON_KEY && window.supabase)
   : null;
 
 async function load() {
-  if (!sb) { state.pending = true; render(); return; }
+  if (!sb) {
+    // Sem banco configurado: catálogo estático, apenas para consulta.
+    state.readOnly = true;
+    state.items = (window.GIFT_CATALOG || []).map((g, i) => ({ id: 'c' + i, name: g.name, section: g.section, status: 'available' }));
+    state.loaded = true;
+    render();
+    return;
+  }
   const { data, error } = await sb.from('gifts').select('id,name,section,status').eq('status', 'available');
   if (error) { state.failed = true; setStatus('Não foi possível atualizar a lista agora.', true); }
   else { state.failed = false; state.items = data || []; }
@@ -166,15 +174,12 @@ function render() {
   const list = $('list');
   list.replaceChildren();
 
-  if (state.pending) {
-    list.appendChild(emptyP('A lista de presentes será disponibilizada em breve.'));
-    return;
-  }
   if (state.failed) {
     list.appendChild(emptyP('Não foi possível carregar a lista agora. Tente novamente mais tarde.'));
     return;
   }
   if (!state.loaded) { list.appendChild(emptyP('Carregando…')); return; }
+  if (state.readOnly) list.appendChild(emptyP('As escolhas serão abertas em breve. Por enquanto, a lista está disponível apenas para consulta.'));
 
   SECTION_ORDER.forEach(section => {
     if (state.filter !== 'Todos' && state.filter !== section) return;
@@ -203,12 +208,13 @@ function render() {
       btn.className = 'primary';
       btn.textContent = 'Escolher';
       btn.addEventListener('click', () => openForm(item));
-      row.append(name, btn);
+      row.append(name);
+      if (!state.readOnly) row.append(btn);
       list.appendChild(row);
     });
   });
 
-  if (!list.children.length) {
+  if (!list.querySelector('.item')) {
     list.appendChild(emptyP(available.length === 0
       ? 'Todos os itens já foram escolhidos. Obrigado!'
       : 'Nenhum item encontrado com esse filtro.'));

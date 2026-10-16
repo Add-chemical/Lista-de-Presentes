@@ -11,6 +11,8 @@ Endereço: https://add-chemical.github.io/Lista-de-Presentes/
 |---|---|
 | `index.html` | Página da lista |
 | `config.js` | URL e chave pública (anon) do Supabase |
+| `itens.js` | Catálogo exibido só para consulta enquanto `config.js` estiver vazio |
+| `supabase/seed.sql` | Cadastro dos 81 presentes no banco |
 | `supabase/gift_registry.sql` | Tabelas, regras de acesso (RLS) e função `claim_gift` |
 | `.nojekyll` | Faz o GitHub Pages publicar os arquivos sem processamento |
 
@@ -19,7 +21,7 @@ Endereço: https://add-chemical.github.io/Lista-de-Presentes/
 1. **Banco:** no Supabase, abrir o SQL Editor e executar `supabase/gift_registry.sql`; depois
    preencher `config.js` com a Project URL e a chave `anon`. Enquanto `config.js` estiver vazio,
    a página exibe "A lista de presentes será disponibilizada em breve."
-2. **Itens:** cadastrar no SQL Editor:
+2. **Itens:** executar `supabase/seed.sql` (81 presentes, mesma lista de `itens.js`). Itens avulsos:
    ```sql
    insert into public.gifts (name, section) values
      ('Liquidificador', 'Eletroportáteis e Outros'),
