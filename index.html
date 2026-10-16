@@ -40,6 +40,7 @@ body::before {
 }
 :root[data-theme="dark"] body::before { filter: invert(1) hue-rotate(180deg) brightness(.8) contrast(1.4); mix-blend-mode: screen; opacity: .22; }
 main { position: relative; z-index: 1; }
+.banner { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto 24px; border-radius: 12px; }
 main { max-width: 760px; margin: 0 auto; padding-block: 32px 64px; }
 h1, h2, h3 { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; text-wrap: balance; margin: 0; }
 h1 { font-size: clamp(34px, 7vw, 52px); line-height: 1.05; }
@@ -101,6 +102,7 @@ button.ghost {
 </head>
 <body>
 <main>
+  <img class="banner" src="marca-dagua.jpg" width="1022" height="430" alt="Ana Luisa e Pedro Henrique">
   <h1>Lista de Presentes de Casamento</h1>
   <p class="lede">Escolha um item disponível. Assim que alguém confirmar um presente, ele deixa a lista para evitar presentes duplicados.</p>
 
