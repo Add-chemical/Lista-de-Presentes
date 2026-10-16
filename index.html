@@ -69,7 +69,8 @@ button:focus-visible, .chip:focus-visible, input:focus-visible { outline: 2px so
   display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10;
 }
 .overlay[hidden] { display: none; }
-.overlay { overflow-y: auto; }
+.overlay { overflow-y: auto; align-items: flex-start; }
+.overlay > .panel { margin: auto; }
 .panel {
   background: var(--surface); color: var(--fg); border-radius: 12px; padding: 24px;
   width: 100%; max-width: 420px; box-sizing: border-box; border: 1px solid var(--line);
@@ -105,13 +106,26 @@ a.primary:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 .event-date .label { font-size: 14px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .event-date time { font-size: 30px; font-weight: 600; color: var(--fg); line-height: 1.1; }
 .event-date .weekday { font-style: italic; color: var(--muted); }
-.panel.rsvp { max-width: 500px; }
-.rsvp fieldset { border: 0; padding: 0; margin: 14px 0 0; }
+.panel.rsvp {
+  max-width: 560px; padding: 20px 22px 0;
+  max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain;
+}
+.rsvp h3 { font-size: 24px; }
+.rsvp > p { margin-bottom: 8px; }
+.rsvp .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+@media (max-width: 520px) { .rsvp .grid2 { grid-template-columns: 1fr; } }
+.rsvp label { margin-top: 8px; }
+.rsvp input:not([type="radio"]):not([type="checkbox"]), .rsvp textarea { padding: 8px 10px; }
+.rsvp .actions {
+  position: sticky; bottom: 0; background: var(--surface); margin: 12px -22px 0; padding: 12px 22px 16px;
+  border-top: 1px solid var(--line);
+}
+.rsvp fieldset { border: 0; padding: 0; margin: 12px 0 0; }
 .rsvp legend { font-weight: 600; padding: 0; }
 .rsvp .choice { display: flex; gap: 18px; margin-top: 6px; }
 .rsvp .choice label, .rsvp .member label { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-weight: 500; }
 .panel input[type="radio"], .panel input[type="checkbox"] { display: inline-block; width: auto; margin: 0; accent-color: var(--fg); }
-.rsvp .member { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; margin-top: 8px; }
+.rsvp .member { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; margin-top: 6px; }
 .rsvp .member input[type="text"] { margin: 0; }
 .rsvp .remove { background: none; border: 0; color: var(--danger); font: inherit; font-size: 22px; line-height: 1; cursor: pointer; padding: 4px 6px; }
 .rsvp textarea {
@@ -170,19 +184,21 @@ a.primary:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 <div class="overlay" id="rsvpOverlay" hidden>
   <form class="panel rsvp" id="rsvpForm" role="dialog" aria-modal="true" aria-labelledby="rsvpTitle" novalidate>
     <h3 id="rsvpTitle">Confirmação de presença</h3>
-    <p>Casamento em <strong>05/12/2026</strong> (sábado). Preencha uma confirmação por família.</p>
-    <label>Família (sobrenome)
-      <input id="rFamily" autocomplete="family-name" placeholder="Ex.: Família Silva" required>
-    </label>
-    <label>Seu nome (responsável)
-      <input id="rContact" autocomplete="name" required>
-    </label>
-    <label>WhatsApp
-      <input id="rWhats" type="tel" autocomplete="tel" placeholder="(00) 00000-0000" required>
-    </label>
-    <label>E-mail (opcional)
-      <input id="rEmail" type="email" autocomplete="email">
-    </label>
+    <p>Casamento em <strong>05/12/2026</strong> (sábado). Uma confirmação por família.</p>
+    <div class="grid2">
+      <label>Família (sobrenome)
+        <input id="rFamily" autocomplete="family-name" placeholder="Ex.: Família Silva" required>
+      </label>
+      <label>Seu nome
+        <input id="rContact" autocomplete="name" required>
+      </label>
+      <label>WhatsApp
+        <input id="rWhats" type="tel" autocomplete="tel" placeholder="(00) 00000-0000" required>
+      </label>
+      <label>E-mail (opcional)
+        <input id="rEmail" type="email" autocomplete="email">
+      </label>
+    </div>
     <fieldset>
       <legend>Vocês irão ao casamento?</legend>
       <div class="choice">
@@ -192,12 +208,12 @@ a.primary:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
     </fieldset>
     <fieldset id="rMembersBox">
       <legend>Convidados da família</legend>
-      <p class="hint">Inclua todas as pessoas que irão, inclusive você. Marque “Criança” para menores de 12 anos.</p>
+      <p class="hint">Todos que irão, inclusive você. Marque “Criança” para menores de 12 anos.</p>
       <div id="rMembers"></div>
       <button type="button" class="ghost" id="rAdd" style="margin-top:10px">+ Adicionar pessoa</button>
     </fieldset>
     <label>Mensagem aos noivos (opcional)
-      <textarea id="rMessage" rows="3" maxlength="1000"></textarea>
+      <textarea id="rMessage" rows="2" maxlength="1000"></textarea>
     </label>
     <div class="field-err" id="rErr" role="alert"></div>
     <p class="ok" id="rOk" role="status"></p>
@@ -437,7 +453,7 @@ function addMember(name) {
   return input;
 }
 function attendValue() { const r = document.querySelector('input[name="rAttend"]:checked'); return r ? r.value : ''; }
-function syncAttend() { $('rMembersBox').hidden = attendValue() === 'no'; }
+function syncAttend() { $('rMembersBox').hidden = attendValue() !== 'yes'; }
 function openRsvp() {
   $('rsvpForm').reset();
   $('rMembers').replaceChildren(); addMember();
