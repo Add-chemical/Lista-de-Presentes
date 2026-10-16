@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lista de Presentes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=DM+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #F6F3EE; --surface: #FFFFFF; --fg: #26231F; --muted: #6E675E;
+  --line: #E2DCD2; --accent: #4F6B57; --accent-ink: #FFFFFF; --danger: #8A3B2E;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1B1A18; --surface: #242320; --fg: #EDE9E2; --muted: #A59E94;
+    --line: #3A3833; --accent: #9DB8A3; --accent-ink: #1B1A18; --danger: #E0A093;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1B1A18; --surface: #242320; --fg: #EDE9E2; --muted: #A59E94;
+  --line: #3A3833; --accent: #9DB8A3; --accent-ink: #1B1A18; --danger: #E0A093;
+  color-scheme: dark;
+}
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: "DM Sans", system-ui, sans-serif; font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 760px; margin: 0 auto; padding-block: 32px 64px; }
+h1, h2, h3 { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(34px, 7vw, 52px); line-height: 1.05; }
+h2 { font-size: 26px; margin-block: 36px 12px; display: flex; align-items: baseline; gap: 12px; }
+h2 span.count { font-family: "DM Sans", sans-serif; font-size: 13px; color: var(--muted); font-weight: 500; }
+.lede { color: var(--muted); max-width: 56ch; margin: 14px 0 0; }
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px);
+  background: var(--bg); padding-block: 16px 12px; margin-top: 24px;
+  border-bottom: 1px solid var(--line); z-index: 2;
+}
+.bar input[type="search"] {
+  width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit;
+}
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.chip {
+  border: 1px solid var(--line); background: var(--surface); color: var(--fg);
+  padding: 6px 12px; border-radius: 999px; font: inherit; font-size: 13px; cursor: pointer;
+}
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--line);
+}
+.item .name { min-width: 0; overflow-wrap: anywhere; }
+button.primary {
+  background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px;
+  padding: 9px 14px; font: inherit; font-weight: 600; cursor: pointer; flex-shrink: 0;
+}
+button:disabled { opacity: .6; cursor: default; }
+button:focus-visible, .chip:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.empty { color: var(--muted); padding: 24px 0; }
+.status { min-height: 1.5em; color: var(--muted); margin-top: 16px; }
+.status.err { color: var(--danger); }
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10;
+}
+.overlay[hidden] { display: none; }
+.panel {
+  background: var(--surface); color: var(--fg); border-radius: 12px; padding: 24px;
+  width: 100%; max-width: 420px; box-sizing: border-box; border: 1px solid var(--line);
+}
+.panel h3 { font-size: 24px; margin: 0 0 4px; }
+.panel p { color: var(--muted); margin: 0 0 16px; }
+.panel label { display: block; font-size: 13px; font-weight: 500; margin-top: 12px; }
+.panel input {
+  display: block; width: 100%; box-sizing: border-box; margin-top: 4px; padding: 10px 12px;
+  border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); font: inherit;
+}
+.actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+button.ghost {
+  background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 9px 14px; font: inherit; cursor: pointer;
+}
+.field-err { color: var(--danger); font-size: 13px; min-height: 1.2em; margin-top: 6px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Lista de Presentes de Casamento</h1>
+  <p class="lede">Escolha um item disponível. Assim que alguém confirmar um presente, ele deixa a lista para evitar presentes duplicados.</p>
+
+  <div class="bar">
+    <input id="q" type="search" placeholder="Buscar item" aria-label="Buscar item">
+    <div class="chips" id="chips" role="group" aria-label="Filtrar por seção"></div>
+  </div>
+
+  <div id="list"></div>
+  <p class="status" id="status" role="status"></p>
+</main>
+
+<div class="overlay" id="overlay" hidden>
+  <form class="panel" id="form" novalidate>
+    <h3 id="ftitle">Confirmar presente</h3>
+    <p>Preencha seus dados para reservar este presente.</p>
+    <label>Nome
+      <input id="fname" autocomplete="name" required>
+    </label>
+    <div class="field-err" id="ename"></div>
+    <label>E-mail
+      <input id="femail" type="email" autocomplete="email" required>
+    </label>
+    <div class="field-err" id="eemail"></div>
+    <label>WhatsApp
+      <input id="fwhats" type="tel" autocomplete="tel" placeholder="(00) 00000-0000" required>
+    </label>
+    <div class="field-err" id="ewhats"></div>
+    <div class="actions">
+      <button type="button" class="ghost" id="cancel">Cancelar</button>
+      <button type="submit" class="primary" id="submit">Confirmar</button>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+const SECTION_ORDER = ['Eletroportáteis e Outros', 'Quarto', 'Banheiro', 'Eletrodoméstico', 'Cozinha', 'Lavanderia', 'Mesa e Jantar'];
+const POLL_MS = 20000;
+const state = { items: [], filter: 'Todos', query: '', current: null, loaded: false, failed: false };
+const $ = id => document.getElementById(id);
+const setStatus = (msg, isErr) => { const s = $('status'); s.textContent = msg; s.className = 'status' + (isErr ? ' err' : ''); };
+
+const sb = (window.SUPABASE_URL && window.SUPABASE_ANON_KEY && window.supabase)
+  ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY)
+  : null;
+
+async function load() {
+  if (!sb) { state.failed = true; render(); return; }
+  const { data, error } = await sb.from('gifts').select('id,name,section,status').eq('status', 'available');
+  if (error) { state.failed = true; setStatus('Não foi possível atualizar a lista agora.', true); }
+  else { state.failed = false; state.items = data || []; }
+  state.loaded = true;
+  render();
+}
+
+function render() {
+  const available = state.items;
+  const sections = ['Todos', ...SECTION_ORDER.filter(s => available.some(i => i.section === s))];
+  const chips = $('chips');
+  chips.replaceChildren();
+  sections.forEach(s => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.textContent = s;
+    b.setAttribute('aria-pressed', String(state.filter === s));
+    b.addEventListener('click', () => { state.filter = s; render(); });
+    chips.appendChild(b);
+  });
+
+  const q = state.query.trim().toLowerCase();
+  const list = $('list');
+  list.replaceChildren();
+
+  if (state.failed) {
+    list.appendChild(emptyP('Não foi possível carregar a lista agora. Tente novamente mais tarde.'));
+    return;
+  }
+  if (!state.loaded) { list.appendChild(emptyP('Carregando…')); return; }
+
+  SECTION_ORDER.forEach(section => {
+    if (state.filter !== 'Todos' && state.filter !== section) return;
+    const rows = available
+      .filter(i => i.section === section)
+      .filter(i => !q || i.name.toLowerCase().includes(q))
+      .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+    if (rows.length === 0) return;
+
+    const h = document.createElement('h2');
+    h.textContent = section;
+    const c = document.createElement('span');
+    c.className = 'count';
+    c.textContent = rows.length + (rows.length === 1 ? ' disponível' : ' disponíveis');
+    h.appendChild(c);
+    list.appendChild(h);
+
+    rows.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'item';
+      const name = document.createElement('span');
+      name.className = 'name';
+      name.textContent = item.name;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'primary';
+      btn.textContent = 'Escolher';
+      btn.addEventListener('click', () => openForm(item));
+      row.append(name, btn);
+      list.appendChild(row);
+    });
+  });
+
+  if (!list.children.length) {
+    list.appendChild(emptyP(available.length === 0
+      ? 'Todos os itens já foram escolhidos. Obrigado!'
+      : 'Nenhum item encontrado com esse filtro.'));
+  }
+}
+
+function emptyP(text) {
+  const p = document.createElement('p');
+  p.className = 'empty';
+  p.textContent = text;
+  return p;
+}
+
+function openForm(item) {
+  state.current = item;
+  $('ftitle').textContent = item.name;
+  ['fname', 'femail', 'fwhats'].forEach(id => $(id).value = '');
+  ['ename', 'eemail', 'ewhats'].forEach(id => $(id).textContent = '');
+  $('submit').disabled = false;
+  $('overlay').hidden = false;
+  $('fname').focus();
+}
+
+function closeForm() { $('overlay').hidden = true; state.current = null; }
+
+function validate() {
+  const name = $('fname').value.trim();
+  const email = $('femail').value.trim();
+  const whats = $('fwhats').value.trim();
+  $('ename').textContent = name ? '' : 'Informe seu nome.';
+  $('eemail').textContent = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? '' : 'Informe um e-mail válido.';
+  $('ewhats').textContent = whats.replace(/\D/g, '').length >= 10 ? '' : 'Informe um WhatsApp com DDD.';
+  if (!name || $('eemail').textContent || $('ewhats').textContent) return null;
+  return { name, email, whatsapp: whats };
+}
+
+async function onSubmit(e) {
+  e.preventDefault();
+  const guest = validate();
+  if (!guest || !state.current) return;
+  const item = state.current;
+  $('submit').disabled = true;
+  try {
+    // claim_gift is an atomic server-side update: it only succeeds while the gift is still available.
+    const { data, error } = await sb.rpc('claim_gift', {
+      gift_id: item.id, g_name: guest.name, g_email: guest.email, g_whats: guest.whatsapp
+    });
+    if (error) throw error;
+    closeForm();
+    if (data === true) {
+      state.items = state.items.filter(i => i.id !== item.id);
+      setStatus('Registramos sua escolha de "' + item.name + '". Obrigado!', false);
+    } else {
+      state.items = state.items.filter(i => i.id !== item.id);
+      setStatus('Este presente acabou de ser escolhido por outra pessoa. Escolha outro item.', true);
+    }
+    render();
+  } catch (err) {
+    $('submit').disabled = false;
+    setStatus('Não foi possível registrar sua escolha. Tente novamente.', true);
+  }
+}
+
+$('q').addEventListener('input', e => { state.query = e.target.value; render(); });
+$('cancel').addEventListener('click', closeForm);
+$('overlay').addEventListener('click', e => { if (e.target === $('overlay')) closeForm(); });
+$('form').addEventListener('submit', onSubmit);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('overlay').hidden) closeForm(); });
+
+render();
+load();
+setInterval(() => { if (!$('overlay').hidden) return; load(); }, POLL_MS);
+</script>
+</body>
+</html>
