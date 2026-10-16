@@ -24,6 +24,8 @@ create table if not exists public.gift_claims (
 alter table public.gifts enable row level security;
 alter table public.gift_claims enable row level security;
 
+grant usage on schema public to anon, authenticated;
+grant select on public.gifts to anon, authenticated;
 revoke insert, update, delete on public.gifts from anon, authenticated;
 revoke all on public.gift_claims from anon, authenticated;
 

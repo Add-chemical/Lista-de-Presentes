@@ -1,5 +1,7 @@
--- Cadastro dos 81 presentes. Executar uma única vez, após supabase/gift_registry.sql.
-insert into public.gifts (name, section) values
+-- Cadastro dos 81 presentes, após supabase/gift_registry.sql.
+-- Pode ser executado mais de uma vez: itens já cadastrados (mesmo nome e seção) são ignorados.
+insert into public.gifts (name, section)
+select v.name, v.section from (values
   ('Liquidificador', 'Eletroportáteis e Outros'),
   ('Cafeteira Elétrica', 'Eletroportáteis e Outros'),
   ('Batedeira', 'Eletroportáteis e Outros'),
@@ -80,4 +82,8 @@ insert into public.gifts (name, section) values
   ('Manteigueira com tampa', 'Mesa e Jantar'),
   ('Porta-pão ou cesta para pães', 'Mesa e Jantar'),
   ('Cuscuzeira ou panela para arroz', 'Mesa e Jantar'),
-  ('Cafeteira elétrica ou prensa francesa', 'Mesa e Jantar');
+  ('Cafeteira elétrica ou prensa francesa', 'Mesa e Jantar')
+) as v(name, section)
+where not exists (
+  select 1 from public.gifts g where g.name = v.name and g.section = v.section
+);
