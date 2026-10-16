@@ -16,7 +16,9 @@ Endereço: https://add-chemical.github.io/Lista-de-Presentes/
 
 ## Configuração
 
-1. **Banco:** no Supabase, abrir o SQL Editor e executar `supabase/gift_registry.sql`.
+1. **Banco:** no Supabase, abrir o SQL Editor e executar `supabase/gift_registry.sql`; depois
+   preencher `config.js` com a Project URL e a chave `anon`. Enquanto `config.js` estiver vazio,
+   a página exibe "A lista de presentes será disponibilizada em breve."
 2. **Itens:** cadastrar no SQL Editor:
    ```sql
    insert into public.gifts (name, section) values
