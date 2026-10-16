@@ -1,4 +1,3 @@
-// Credenciais públicas (anon) do projeto Supabase. Enquanto vazias, a página exibe
-// "A lista de presentes será disponibilizada em breve." Ver supabase/gift_registry.sql.
-window.SUPABASE_URL = "";
-window.SUPABASE_ANON_KEY = "";
+// URL do app da Web do Google Apps Script (termina em /exec). Enquanto vazia, a página
+// exibe o catálogo de itens.js apenas para consulta. Ver README.md, seção "Planilha Google".
+window.GIFTS_API_URL = "";

@@ -125,7 +125,6 @@ button.ghost {
   </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <script src="itens.js"></script>
 <script>
@@ -135,12 +134,10 @@ const state = { items: [], filter: 'Todos', query: '', current: null, loaded: fa
 const $ = id => document.getElementById(id);
 const setStatus = (msg, isErr) => { const s = $('status'); s.textContent = msg; s.className = 'status' + (isErr ? ' err' : ''); };
 
-const sb = (window.SUPABASE_URL && window.SUPABASE_ANON_KEY && window.supabase)
-  ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY)
-  : null;
+const API = window.GIFTS_API_URL || '';
 
 async function load() {
-  if (!sb) {
+  if (!API) {
     // Sem banco configurado: catálogo estático, apenas para consulta.
     state.readOnly = true;
     state.items = (window.GIFT_CATALOG || []).map((g, i) => ({ id: 'c' + i, name: g.name, section: g.section, status: 'available' }));
@@ -148,9 +145,16 @@ async function load() {
     render();
     return;
   }
-  const { data, error } = await sb.from('gifts').select('id,name,section,status').eq('status', 'available');
-  if (error) { state.failed = true; setStatus('Não foi possível atualizar a lista agora.', true); }
-  else { state.failed = false; state.items = data || []; }
+  try {
+    const res = await fetch(API, { cache: 'no-store' });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+    state.failed = false;
+    state.items = data.items || [];
+  } catch (err) {
+    state.failed = true;
+    setStatus('Não foi possível atualizar a lista agora.', true);
+  }
   state.loaded = true;
   render();
 }
@@ -258,13 +262,17 @@ async function onSubmit(e) {
   const item = state.current;
   $('submit').disabled = true;
   try {
-    // claim_gift is an atomic server-side update: it only succeeds while the gift is still available.
-    const { data, error } = await sb.rpc('claim_gift', {
-      gift_id: item.id, g_name: guest.name, g_email: guest.email, g_whats: guest.whatsapp
+    // The Apps Script reserves the row under a lock: it only succeeds while the gift is still available.
+    // text/plain avoids a CORS preflight, which Apps Script web apps do not answer.
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ id: item.id, name: guest.name, email: guest.email, whatsapp: guest.whatsapp })
     });
-    if (error) throw error;
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
     closeForm();
-    if (data === true) {
+    if (data.claimed === true) {
       state.items = state.items.filter(i => i.id !== item.id);
       setStatus('Registramos sua escolha de "' + item.name + '". Obrigado!', false);
     } else {
