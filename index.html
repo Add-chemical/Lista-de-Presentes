@@ -4,28 +4,29 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Lista de Presentes</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=DM+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap">
 <style>
 :root {
-  --bg: #F6F3EE; --surface: #FFFFFF; --fg: #26231F; --muted: #6E675E;
-  --line: #E2DCD2; --accent: #4F6B57; --accent-ink: #FFFFFF; --danger: #8A3B2E;
+  /* Paleta extraída da imagem do cabeçalho: azul dos nomes, dourado dos detalhes, fundo marfim. */
+  --bg: #FAF9F6; --surface: #FFFFFF; --fg: #1F3346; --muted: #586776;
+  --line: #E6DDCC; --accent: #2F5A80; --accent-ink: #FFFFFF; --gold: #9C7C4A; --danger: #8A3B2E;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #1B1A18; --surface: #242320; --fg: #EDE9E2; --muted: #A59E94;
-    --line: #3A3833; --accent: #9DB8A3; --accent-ink: #1B1A18; --danger: #E0A093;
+    --bg: #141B22; --surface: #1C2630; --fg: #E9EEF3; --muted: #9DABB8;
+    --line: #34404C; --accent: #9DBBD8; --accent-ink: #141B22; --gold: #C6AD7E; --danger: #E0A093;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #1B1A18; --surface: #242320; --fg: #EDE9E2; --muted: #A59E94;
-  --line: #3A3833; --accent: #9DB8A3; --accent-ink: #1B1A18; --danger: #E0A093;
+  --bg: #141B22; --surface: #1C2630; --fg: #E9EEF3; --muted: #9DABB8;
+  --line: #34404C; --accent: #9DBBD8; --accent-ink: #141B22; --gold: #C6AD7E; --danger: #E0A093;
   color-scheme: dark;
 }
 body {
   margin: 0; background: var(--bg); color: var(--fg);
-  font-family: "DM Sans", system-ui, sans-serif; font-size: 15px; line-height: 1.5;
+  font-family: "Cormorant Garamond", Georgia, serif; font-size: 18px; font-weight: 500; line-height: 1.5;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
@@ -43,14 +44,15 @@ main { position: relative; z-index: 1; }
 .banner { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto 24px; border-radius: 12px; }
 main { max-width: 760px; margin: 0 auto; padding-block: 32px 64px; }
 h1, h2, h3 { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; text-wrap: balance; margin: 0; }
-h1 { font-size: clamp(34px, 7vw, 52px); line-height: 1.05; }
-h2 { font-size: 26px; margin-block: 36px 12px; display: flex; align-items: baseline; gap: 12px; }
-h2 span.count { font-family: "DM Sans", sans-serif; font-size: 13px; color: var(--muted); font-weight: 500; }
-.lede { color: var(--muted); max-width: 56ch; margin: 14px 0 0; }
+h1 { font-family: "Great Vibes", "Cormorant Garamond", cursive; font-weight: 400; font-size: clamp(44px, 9vw, 68px); line-height: 1.1; color: var(--accent); text-align: center; }
+h1::after { content: ""; display: block; width: 120px; height: 1px; margin: 10px auto 0; background: var(--gold); }
+h2 { font-size: 28px; font-style: italic; color: var(--accent); margin-block: 36px 12px; display: flex; align-items: baseline; gap: 12px; }
+h2 span.count { font-style: normal; font-size: 15px; color: var(--muted); font-weight: 500; }
+.lede { color: var(--muted); max-width: 56ch; margin: 14px auto 0; text-align: center; font-style: italic; font-size: 19px; }
 .bar {
   position: sticky; top: env(safe-area-inset-top, 0px);
   background: var(--bg); padding-block: 16px 12px; margin-top: 24px;
-  border-bottom: 1px solid var(--line); z-index: 2;
+  border-bottom: 1px solid var(--gold); z-index: 2;
 }
 .bar input[type="search"] {
   width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 8px;
@@ -59,7 +61,7 @@ h2 span.count { font-family: "DM Sans", sans-serif; font-size: 13px; color: var(
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .chip {
   border: 1px solid var(--line); background: var(--surface); color: var(--fg);
-  padding: 6px 12px; border-radius: 999px; font: inherit; font-size: 13px; cursor: pointer;
+  padding: 6px 13px; border-radius: 999px; font: inherit; font-size: 16px; cursor: pointer;
 }
 .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .item {
@@ -99,7 +101,7 @@ button.ghost {
   padding: 9px 14px; font: inherit; cursor: pointer;
 }
 .field-err { color: var(--danger); font-size: 13px; min-height: 1.2em; margin-top: 6px; }
-.pix-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 20px 0 0; color: var(--muted); }
+.pix-cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 14px; margin: 20px 0 0; color: var(--muted); }
 a.primary { display: inline-block; text-decoration: none; background: var(--accent); color: var(--accent-ink); border-radius: 8px; padding: 9px 14px; font-weight: 600; }
 a.primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .pix img { display: block; width: 100%; max-width: 240px; height: auto; margin: 0 auto; border-radius: 8px; background: #fff; }
