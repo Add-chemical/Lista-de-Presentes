@@ -29,6 +29,17 @@ body {
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
+/* Marca d'água: imagem fixa ao fundo; multiply apaga o fundo claro da imagem. */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: url("marca-dagua.jpg") 50% 72% / min(900px, 94vw) auto no-repeat;
+  opacity: .16; mix-blend-mode: multiply;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body::before { filter: invert(1) hue-rotate(180deg) brightness(.8) contrast(1.4); mix-blend-mode: screen; opacity: .22; }
+}
+:root[data-theme="dark"] body::before { filter: invert(1) hue-rotate(180deg) brightness(.8) contrast(1.4); mix-blend-mode: screen; opacity: .22; }
+main { position: relative; z-index: 1; }
 main { max-width: 760px; margin: 0 auto; padding-block: 32px 64px; }
 h1, h2, h3 { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; text-wrap: balance; margin: 0; }
 h1 { font-size: clamp(34px, 7vw, 52px); line-height: 1.05; }

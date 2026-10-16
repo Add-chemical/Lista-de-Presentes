@@ -1,4 +1,4 @@
--- Cadastro dos 81 presentes, após supabase/gift_registry.sql.
+-- Cadastro dos 83 presentes, após supabase/gift_registry.sql.
 -- Pode ser executado mais de uma vez: itens já cadastrados (mesmo nome e seção) são ignorados.
 insert into public.gifts (name, section)
 select v.name, v.section from (values
@@ -25,6 +25,7 @@ select v.name, v.section from (values
   ('Cabides', 'Quarto'),
   ('Abajur', 'Quarto'),
   ('Espelho de corpo', 'Quarto'),
+  ('Cortina', 'Quarto'),
   ('Jogo de Toalhas de Banho', 'Banheiro'),
   ('Toalhas de rosto', 'Banheiro'),
   ('Kit Banheiro', 'Banheiro'),
@@ -36,6 +37,7 @@ select v.name, v.section from (values
   ('Micro-ondas', 'Eletrodoméstico'),
   ('Lava-louças', 'Eletrodoméstico'),
   ('Ar condicionado', 'Eletrodoméstico'),
+  ('Forno Elétrico', 'Eletrodoméstico'),
   ('Jogo de panelas', 'Cozinha'),
   ('Panela de pressão', 'Cozinha'),
   ('Frigideira antiaderente', 'Cozinha'),
